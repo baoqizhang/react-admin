@@ -1,17 +1,19 @@
 import React, {Component} from 'react';
-import {Button, message} from 'antd'
 import './App.less';
+import Login from "./pages/login/login";
+import {BrowserRouter, Route, Switch} from 'react-router-dom'
+import Admin from "./pages/admin/admin";
 
 class App extends Component {
-  show = () => {
-    message.info("success!")
-  }
 
   render() {
     return (
-      <div>
-        <Button type="primary" onClick={this.show}>Button</Button>
-      </div>
+      <BrowserRouter>
+        <Switch>
+          <Route path='/login' component={Login}/>
+          <Route path='/' component={Admin}/>
+        </Switch>
+      </BrowserRouter>
     );
   }
 }
