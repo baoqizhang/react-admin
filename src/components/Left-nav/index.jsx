@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
 import {Menu} from "antd";
-import {HomeOutlined, AppstoreOutlined, UserOutlined, BarsOutlined, ToolOutlined} from "@ant-design/icons";
 import './index.less'
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
+import menuList from "../../config/menuConfig"
 
 const {SubMenu} = Menu;
 
 class LeftNav extends Component {
-  state = {
-    current: '1',
-  };
 
   render() {
+    this.menuNodes = this.getMenuNodes(menuList)
+    let pathname = this.props.location.pathname;
+    const openKey = this.openKey
     return (
       <div className='left-nav'>
         <Link to='/' className="left-nav-header">
@@ -19,25 +19,43 @@ class LeftNav extends Component {
         </Link>
         <Menu
           theme='dark'
-          onClick={this.handleClick}
-          defaultOpenKeys={['sub1']}
-          selectedKeys={[this.state.current]}
+          defaultOpenKeys={[openKey]}
+          selectedKeys={[pathname]}
           mode="inline"
         >
-          <Menu.Item key="index" icon={<HomeOutlined/>}>
-            首页
-          </Menu.Item>
-          <SubMenu key="product" icon={<AppstoreOutlined/>} title="商品">
-            <Menu.Item key="ca" icon={<BarsOutlined />}>品类管理</Menu.Item>
-            <Menu.Item key="pro" icon={<ToolOutlined />}>商品管理</Menu.Item>
-          </SubMenu>
-          <Menu.Item key="user" icon={<UserOutlined/>}>
-            用户管理
-          </Menu.Item>
+          {this.menuNodes}
         </Menu>
       </div>
     );
   }
+
+  getMenuNodes(menuList) {
+    let pathname = this.props.location.pathname;
+
+    return menuList.map(item => {
+      if (!item.children) {
+        return (
+          <Menu.Item key={item.key} icon={React.createElement(require('@ant-design/icons')[item.icon])}>
+            <Link to={item.key}>
+              <span>{item.title}</span>
+            </Link>
+          </Menu.Item>
+        )
+      } else {
+        const cItem = item.children.find(cItem => pathname.indexOf(cItem.key)===0)
+        // 如果存在, 说明当前item的子列表需要打开
+        if (cItem) {
+          this.openKey = item.key
+        }
+        return (
+          <SubMenu key={item.key} icon={React.createElement(require('@ant-design/icons')[item.icon])}
+                   title={item.title}>
+            {this.getMenuNodes(item.children)}
+          </SubMenu>
+        )
+      }
+    })
+  }
 }
 
-export default LeftNav;
+export default withRouter(LeftNav);
